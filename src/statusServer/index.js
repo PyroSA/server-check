@@ -17,7 +17,7 @@ function startFakerServer(port) {
 }
 
 function startStaticServer(port) {
-  app.use(serveStatic('public', {}));
+  app.use(serveStatic('./src/public', {}));
 
   return http
     .createServer(app)
