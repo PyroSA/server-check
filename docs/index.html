@@ -48,6 +48,7 @@
               @blur="doneEdit(server)"
               @keyup.enter="doneEdit(server)"
               @keyup.esc="cancelEdit(server)">
+            <button class="btn btn-success" @click="checkServer(server)">Check</button>
             <button class="btn btn-danger" @click="removeServer(server)">Remove</button>
           </div>
         </section>

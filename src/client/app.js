@@ -51,6 +51,10 @@ var app = function () {
         this.servers.splice(this.servers.indexOf(server), 1);
       },
 
+      checkServer: function (server) {
+        console.log(server.endpoint);
+      },
+
       editServer: function (server) {
         this.beforeEditCache = {
           name: server.name,
