@@ -4,8 +4,8 @@ const SERVER_STORAGE_KEY = 'server-check';
 const ServerStorage = require('./lib/serverStorage');
 const serverStorage = new ServerStorage(SERVER_STORAGE_KEY);
 
-var app = function() {
-  new Vue({
+var app = function () {
+  return new Vue({
     el: '#app',
     data: {
       newServer: '',
@@ -15,69 +15,69 @@ var app = function() {
     watch: {
       servers: {
         handler: function (servers) {
-          serverStorage.save(servers)
+          serverStorage.save(servers);
         },
         deep: true
       }
     },
     filters: {
       pluralize: function (n) {
-        return n === 1 ? 'server' : 'servers'
+        return n === 1 ? 'server' : 'servers';
       }
     },
     computed: {
       monitoring: function () {
         return this.servers.filter(function (server) {
-          return server.monitor
+          return server.monitor;
         }).length;
       }
     },
     methods: {
       addServer: function () {
-        var value = this.newServer && this.newServer.trim()
+        var value = this.newServer && this.newServer.trim();
         if (!value) {
-          return
+          return;
         }
         this.servers.push({
           id: serverStorage.uid++,
           name: value,
-          host: value,
+          endpoint: value,
           monitor: false
-        })
-        this.newServer = ''
+        });
+        this.newServer = '';
       },
 
       removeServer: function (server) {
-        this.servers.splice(this.servers.indexOf(server), 1)
+        this.servers.splice(this.servers.indexOf(server), 1);
       },
 
       editServer: function (server) {
         this.beforeEditCache = {
           name: server.name,
-          host: server.host
-        }
-        this.editedServer = server
+          endpoint: server.endpoint
+        };
+        this.editedServer = server;
       },
 
       doneEdit: function (server) {
         if (!this.editedServer) {
-          return
+          return;
         }
-        this.editedServer = null
-        server.name = server.name.trim()
-        server.host = server.host.trim()
+        this.editedServer = null;
+        server.name = server.name.trim();
+        server.endpoint = server.endpoint.trim();
         if (!server.name) {
-          this.removeServer(server)
+          this.removeServer(server);
         }
       },
 
       cancelEdit: function (server) {
-        this.editedServer = null
+        this.editedServer = null;
         server.name = this.beforeEditCache.name;
-        server.host = this.beforeEditCache.host;
+        server.endpoint = this.beforeEditCache.endpoint;
       }
-    },
-  })
-}
+    }
+  });
+};
 
 module.exports = app;
