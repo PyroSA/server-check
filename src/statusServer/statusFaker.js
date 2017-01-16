@@ -3,15 +3,15 @@ const os = require('os');
 
 const CPU_FACTOR = 100 / os.cpus().length;
 
-const fmtMb = function(value) {
+const fmtMb = function (value) {
   return `${(Math.floor(value / 1048576))}MB`;
 };
 
-const fmtLoad = function(load) {
+const fmtLoad = function (load) {
   return `${((load * CPU_FACTOR).toFixed(2))}`;
 };
 
-const fmtTime = function(time) {
+const fmtTime = function (time) {
   let uptime = Math.round(time);
   const upsec = uptime % 60;
 
@@ -38,11 +38,10 @@ const fmtTime = function(time) {
 
 function loadCpu (req, res) {
   const loadCpu = require('./loadCpu');
-  const loadFactor = Math.min(Math.max(parseInt(req.params.loadFactor) || 1, 1), 1000)*0.001;
+  const loadFactor = Math.min(Math.max(parseInt(req.params.loadFactor) || 1, 1), 1000) * 0.001;
   loadCpu(loadFactor, (err, result) => {
     res.status(200).json(result);
   });
-
 }
 
 function fakeStatus (req, res) {
@@ -77,7 +76,7 @@ function fakeStatus (req, res) {
 }
 
 function exit (req, res) {
-  console.log(`Exiting Worker ${cluster.worker.id}`)
+  console.log(`Exiting Worker ${cluster.worker.id}`);
   res.sendStatus(204);
   process.exit(0);
 }
@@ -86,4 +85,4 @@ module.exports = {
   loadCpu,
   fakeStatus,
   exit
-}
+};

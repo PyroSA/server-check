@@ -1,9 +1,9 @@
 const http = require('http');
 const app = require('express')();
-const serveStatic = require('serve-static')
+const serveStatic = require('serve-static');
 const statusFaker = require('./statusFaker');
 
-function startFakerServer(port) {
+function startFakerServer (port) {
   app.get('/status', statusFaker.fakeStatus);
   app.get('/loadCpu/:loadFactor', statusFaker.loadCpu);
   app.get('/exit', statusFaker.exit);
@@ -16,7 +16,7 @@ function startFakerServer(port) {
     });
 }
 
-function startStaticServer(port) {
+function startStaticServer (port) {
   app.use(serveStatic('./docs', {}));
 
   return http
@@ -26,9 +26,9 @@ function startStaticServer(port) {
     });
 }
 
-function startServer(port=8001) {
+function startServer (port = 8001) {
   startFakerServer(port);
-  startStaticServer(8000)
+  startStaticServer(8000);
 }
 
 module.exports = startServer;

@@ -3,11 +3,11 @@ const http = require('http');
 const cpus = require('os').cpus();
 const _ = require('lodash');
 
-const hosts = []
+const hosts = [];
 
-const initMaster = function() {
+const initMaster = function () {
   for (var i = 0; i < cpus.length; i++) {
-    console.log(`${cpus[i].model} @ ${cpus[i].speed}`)
+    console.log(`${cpus[i].model} @ ${cpus[i].speed}`);
     const worker = cluster.fork();
     hosts.push(worker.id);
   }
@@ -20,12 +20,12 @@ const initMaster = function() {
   });
 };
 
-const initChild = function() {
+const initChild = function () {
   console.log(`Starting child process ${cluster.worker.id}`);
   return require('./statusServer')(8000 + cluster.worker.id);
 };
 
-(function() {
+(function () {
   if (cluster.isMaster) {
     initMaster();
   } else {

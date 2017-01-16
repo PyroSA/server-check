@@ -1,13 +1,13 @@
-function fmtNumber(value, decimals) {
-  return Math.round(value*Math.pow(10, decimals))/Math.pow(10, decimals);
+function fmtNumber (value, decimals) {
+  return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
 }
 
 const GENERATION_SIZE = 1000;
 let result = Array.apply(null, Array(GENERATION_SIZE));
 
 function generateCpuLoad () {
-  for (var i=1; i<=GENERATION_SIZE; i++) {
-    result[i] = (i-2) * (i-1) / (i+1) / (i+2);
+  for (var i = 1; i <= GENERATION_SIZE; i++) {
+    result[i] = (i - 2) * (i - 1) / (i + 1) / (i + 2);
   }
 }
 
@@ -29,30 +29,30 @@ function loadCpu (loadFactor, cb) {
   let hrtime;
   let time;
 
-  function updateTime() {
+  function updateTime () {
     hrtime = process.hrtime(startTime);
-    time = hrtime[0]*1e9 + hrtime[1];
+    time = hrtime[0] * 1e9 + hrtime[1];
   }
 
-  function updateIdleTime() {
+  function updateIdleTime () {
     updateTime();
     idleDelta = time - lastTime;
     idleTime += time - lastTime;
     lastTime = time;
   }
 
-  function updateLoadTime() {
+  function updateLoadTime () {
     updateTime();
     loadDelta = time - lastTime;
     loadTime += time - lastTime;
     lastTime = time;
   }
 
-  function interval() {
+  function interval () {
     updateIdleTime();
 
-    const intervalLoad = ((time+INTERVAL)*loadFactor - loadTime) ;
-    while(time <= intervalLoad + lastTime) {
+    const intervalLoad = ((time + INTERVAL) * loadFactor - loadTime);
+    while (time <= intervalLoad + lastTime) {
       generateCpuLoad();
       totalCalcs++;
       updateTime();
@@ -60,7 +60,7 @@ function loadCpu (loadFactor, cb) {
     updateLoadTime();
 
     if (time <= TOTAL_TIME) {
-      const intervalIdleMs = ((time+INTERVAL)*(1-loadFactor) - idleTime)/1e6;
+      const intervalIdleMs = ((time + INTERVAL) * (1 - loadFactor) - idleTime) / 1e6;
       intervals++;
 
       const behind = intervalIdleMs < 10;
@@ -82,7 +82,7 @@ function loadCpu (loadFactor, cb) {
         time: {
           load: loadMs,
           idle: idleMs,
-          totalMs: time/1e6
+          totalMs: time / 1e6
         },
         calcRate: calcRate,
         intervals: {
@@ -90,16 +90,16 @@ function loadCpu (loadFactor, cb) {
           slow: slowIntervals,
           total: intervals
         }
-      }
+      };
       cb(undefined, result);
-      console.log(`unload: Loaded ${loadMs}%, Idle ${idleMs}% - Rate ${calcRate}`)
-      console.log(`unload: Intervals ${intervals}, quick ${quickIntervals}, slow ${slowIntervals}`)
+      console.log(`unload: Loaded ${loadMs}%, Idle ${idleMs}% - Rate ${calcRate}`);
+      console.log(`unload: Intervals ${intervals}, quick ${quickIntervals}, slow ${slowIntervals}`);
     }
   }
-  console.log(`load: Factor ${loadFactor}`)
+  console.log(`load: Factor ${loadFactor}`);
   generateCpuLoad();
 
-  startTime = process.hrtime()
+  startTime = process.hrtime();
   interval();
 }
 
