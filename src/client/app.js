@@ -68,8 +68,8 @@ var app = function () {
           return;
         }
         this.editedServer = null;
-        server.name = server.name.trim();
-        server.endpoint = server.endpoint.trim();
+        server.name = (server.name || '').trim();
+        server.endpoint = (server.endpoint || '').trim();
         if (!server.name) {
           this.removeServer(server);
         }
