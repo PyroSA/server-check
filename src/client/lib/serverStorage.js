@@ -11,7 +11,7 @@ ServerStorage.prototype.load = function () {
   return servers;
 };
 
-ServerStorage.save = function (servers) {
+ServerStorage.prototype.save = function (servers) {
   localStorage.setItem(this._storageKey, JSON.stringify(servers));
 };
 
