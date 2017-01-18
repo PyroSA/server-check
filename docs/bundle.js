@@ -8701,6 +8701,7 @@ module.exports = Vue$3;
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"_process":1}],3:[function(require,module,exports){
 var Vue = require('vue');
+const statusReader = require('./lib/statusReader');
 
 const SERVER_STORAGE_KEY = 'server-check';
 const ServerStorage = require('./lib/serverStorage');
@@ -8754,7 +8755,10 @@ var app = function () {
       },
 
       checkServer: function (server) {
-        console.log(server.endpoint);
+        statusReader(server.endpoint)
+          .then((result) => {
+            console.log({ endpoint: server.endpoint, result });
+          });
       },
 
       editServer: function (server) {
@@ -8770,8 +8774,8 @@ var app = function () {
           return;
         }
         this.editedServer = null;
-        server.name = server.name.trim();
-        server.endpoint = server.endpoint.trim();
+        server.name = (server.name || '').trim();
+        server.endpoint = (server.endpoint || '').trim();
         if (!server.name) {
           this.removeServer(server);
         }
@@ -8788,7 +8792,7 @@ var app = function () {
 
 module.exports = app;
 
-},{"./lib/serverStorage":4,"vue":2}],4:[function(require,module,exports){
+},{"./lib/serverStorage":4,"./lib/statusReader":5,"vue":2}],4:[function(require,module,exports){
 function ServerStorage (storageKey) {
   this._storageKey = storageKey;
 }
@@ -8802,14 +8806,35 @@ ServerStorage.prototype.load = function () {
   return servers;
 };
 
-ServerStorage.save = function (servers) {
+ServerStorage.prototype.save = function (servers) {
   localStorage.setItem(this._storageKey, JSON.stringify(servers));
 };
 
 module.exports = ServerStorage;
 
 },{}],5:[function(require,module,exports){
+function getStatus (endpoint) {
+  const JSON_REQUEST = {
+    method: 'get',
+    mode: 'no-cors',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  };
+
+  // TODO: Our server isn't working cross-host... Fix it!
+  return fetch(endpoint, JSON_REQUEST)
+    .then((response) => response.json())
+    .then((result) => {
+      return result;
+    });
+}
+
+module.exports = getStatus;
+
+},{}],6:[function(require,module,exports){
 var app = require('./app');
 app();
 
-},{"./app":3}]},{},[5]);
+},{"./app":3}]},{},[6]);
