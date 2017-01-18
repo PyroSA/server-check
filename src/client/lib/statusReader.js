@@ -9,6 +9,7 @@ function getStatus (endpoint) {
   };
 
   // TODO: Our server isn't working cross-host... Fix it!
+  // TODO: Well shit if the client is hosted on HTTPS, the status cannot be retrieved from HTTP
   return fetch(endpoint, JSON_REQUEST)
     .then((response) => response.json())
     .then((result) => {
