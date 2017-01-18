@@ -1,4 +1,5 @@
 var Vue = require('vue');
+const statusReader = require('./lib/statusReader');
 
 const SERVER_STORAGE_KEY = 'server-check';
 const ServerStorage = require('./lib/serverStorage');
@@ -52,7 +53,10 @@ var app = function () {
       },
 
       checkServer: function (server) {
-        console.log(server.endpoint);
+        statusReader(server.endpoint)
+          .then((result) => {
+            console.log({ endpoint: server.endpoint, result });
+          });
       },
 
       editServer: function (server) {
