@@ -1,4 +1,5 @@
-function getStatus (endpoint) {
+function getStatusFetch (endpoint) {
+  console.log('fetch', endpoint);
   const JSON_REQUEST = {
     method: 'get',
     mode: 'no-cors',
@@ -16,4 +17,27 @@ function getStatus (endpoint) {
     });
 }
 
-module.exports = getStatus;
+function getStatusXHR (endpoint) {
+  return new Promise((resolve, reject) => {
+
+    console.log('xhr', endpoint);
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', endpoint);
+    xhr.responseType = 'json';
+
+    xhr.onload = function () {
+      console.log(xhr.response);
+      resolve(xhr.response);
+    };
+
+    xhr.onerror = function (err) {
+      console.log("Houston, we've got a problem.");
+      console.log(err);
+      console.log(xhr);
+      reject();
+    };
+    xhr.send();
+  });
+}
+
+module.exports = getStatusFetch || getStatusXHR;
