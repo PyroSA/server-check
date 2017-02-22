@@ -52,13 +52,6 @@ var app = function () {
         this.servers.splice(this.servers.indexOf(server), 1);
       },
 
-      checkServer: function (server) {
-        statusReader(server.endpoint)
-          .then((result) => {
-            console.log({ endpoint: server.endpoint, result });
-          });
-      },
-
       editServer: function (server) {
         this.beforeEditCache = {
           name: server.name,
@@ -83,7 +76,25 @@ var app = function () {
         this.editedServer = null;
         server.name = this.beforeEditCache.name;
         server.endpoint = this.beforeEditCache.endpoint;
+      },
+
+      checkServers: function (servers, force) {
+        console.log('monitoring', this.monitoring);
+        if (this.monitoring || force) {
+          servers.forEach(function (server, index) {
+            statusReader(server.endpoint)
+              .then((result) => {
+                console.log({ endpoint: server.endpoint, result });
+              });
+          });
+        }
       }
+    },
+
+    mounted: function () {
+      console.log('ready');
+      this.checkServers(this.servers);
+      setInterval(() => this.checkServers(this.servers), 30000);
     }
   });
 };

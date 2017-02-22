@@ -48,12 +48,18 @@
               @blur="doneEdit(server)"
               @keyup.enter="doneEdit(server)"
               @keyup.esc="cancelEdit(server)">
-            <button class="btn btn-success" @click="checkServer(server)">Check</button>
+            <button class="btn btn-success" @click="checkServers([server], true)">Check</button>
             <button class="btn btn-danger" @click="removeServer(server)">Remove</button>
           </div>
         </section>
 
         <footer class="footer" v-show="servers.length" v-cloak>
+          <button class="btn"
+            :class="{ 'btn-primary': monitoring, 'btn-secondary': !monitoring }"
+            type="button"
+            @click="checkServers(servers)">
+              Check
+          </button>
           <span class="server-count">
             Monitoring <strong>{{ monitoring }}</strong> of <strong>{{ servers.length }}</strong> {{ servers.length | pluralize }}
           </span>
