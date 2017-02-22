@@ -8754,13 +8754,6 @@ var app = function () {
         this.servers.splice(this.servers.indexOf(server), 1);
       },
 
-      checkServer: function (server) {
-        statusReader(server.endpoint)
-          .then((result) => {
-            console.log({ endpoint: server.endpoint, result });
-          });
-      },
-
       editServer: function (server) {
         this.beforeEditCache = {
           name: server.name,
@@ -8785,7 +8778,25 @@ var app = function () {
         this.editedServer = null;
         server.name = this.beforeEditCache.name;
         server.endpoint = this.beforeEditCache.endpoint;
+      },
+
+      checkServers: function (servers, force) {
+        console.log('monitoring', this.monitoring);
+        if (this.monitoring || force) {
+          servers.forEach(function (server, index) {
+            statusReader(server.endpoint)
+              .then((result) => {
+                console.log({ endpoint: server.endpoint, result });
+              });
+          });
+        }
       }
+    },
+
+    mounted: function () {
+      console.log('ready');
+      this.checkServers(this.servers);
+      setInterval(() => this.checkServers(this.servers), 30000);
     }
   });
 };
@@ -8813,25 +8824,25 @@ ServerStorage.prototype.save = function (servers) {
 module.exports = ServerStorage;
 
 },{}],5:[function(require,module,exports){
-function getStatus (endpoint) {
-  const JSON_REQUEST = {
-    method: 'get',
-    mode: 'no-cors',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    }
-  };
+function getStatusXHR (endpoint) {
+  return new Promise((resolve, reject) => {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', endpoint);
+    xhr.responseType = 'json';
 
-  // TODO: Our server isn't working cross-host... Fix it!
-  return fetch(endpoint, JSON_REQUEST)
-    .then((response) => response.json())
-    .then((result) => {
-      return result;
-    });
+    xhr.onload = function () {
+      resolve(xhr.response);
+    };
+
+    xhr.onerror = function (err) {
+      console.error("Houston, we've got a problem.", err, xhr);
+      reject();
+    };
+    xhr.send();
+  });
 }
 
-module.exports = getStatus;
+module.exports = getStatusXHR;
 
 },{}],6:[function(require,module,exports){
 var app = require('./app');
