@@ -4,6 +4,12 @@ const serveStatic = require('serve-static');
 const statusFaker = require('./statusFaker');
 
 function startFakerServer (port) {
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+  });
+
   app.get('/status', statusFaker.fakeStatus);
   app.get('/loadCpu/:loadFactor', statusFaker.loadCpu);
   app.get('/exit', statusFaker.exit);
