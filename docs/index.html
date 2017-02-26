@@ -7,9 +7,11 @@
     <title>Server Status</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
     <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+    <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
 
     <link rel="stylesheet" href="style.css">
     <script src="bundle.js" defer></script>
@@ -28,7 +30,7 @@
         </header>
 
         <section class="main" v-show="servers.length" v-cloak>
-          <div class="form-inline" v-for="server in servers" :key="server.id">
+          <div class="form-inline" v-for="(server, index) in servers" :key="server.id">
             <!--:class="{ monitoring: server.monitor, editing: server == editedServer }">-->
             <button class="btn"
               :class="{ 'btn-primary': server.monitor, 'btn-secondary': !server.monitor }"
@@ -48,7 +50,7 @@
               @blur="doneEdit(server)"
               @keyup.enter="doneEdit(server)"
               @keyup.esc="cancelEdit(server)">
-            <button class="btn btn-success" @click="checkServers([server], true)">Check</button>
+            <button class="btn btn-success" @click="checkServers(index)">Check</button>
             <button class="btn btn-danger" @click="removeServer(server)">Remove</button>
           </div>
         </section>
@@ -57,7 +59,7 @@
           <button class="btn"
             :class="{ 'btn-primary': monitoring, 'btn-secondary': !monitoring }"
             type="button"
-            @click="checkServers(servers)">
+            @click="checkServers()">
               Check
           </button>
           <span class="server-count">
@@ -70,5 +72,7 @@
         <p>Get a compatible server implementation <a href="https://github.com/PyroSA/server-check">here</a></p>
       </footer>
     </div>
+    <div class="ct-chart ct-perfect-fourth"></div>
+
   </body>
 </html>

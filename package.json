@@ -12,6 +12,7 @@
   "description": "",
   "dependencies": {
     "browserify": "^13.3.0",
+    "chartist": "^0.10.1",
     "express": "^4.14.0",
     "glob": "^7.1.1",
     "json2csv": "^3.7.3",

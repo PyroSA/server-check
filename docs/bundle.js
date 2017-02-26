@@ -8700,20 +8700,79 @@ module.exports = Vue$3;
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"_process":1}],3:[function(require,module,exports){
-var Vue = require('vue');
+const Vue = require('vue');
+
 const statusReader = require('./lib/statusReader');
 
 const SERVER_STORAGE_KEY = 'server-check';
 const ServerStorage = require('./lib/serverStorage');
 const serverStorage = new ServerStorage(SERVER_STORAGE_KEY);
 
+const CHECK_FREQUENCY = 30000;
+
+const mainChart = new window.Chartist.Line('.ct-chart', { labels: ['new'], series: [[0, 30, 60, 90, 0, 100]] });
+
+const updateGraphs = (servers, graphs, element = 'rtt') => {
+  const data = {
+    labels: servers.map((server) => server.name),
+    series: graphs.map((graph) => graph[element])
+  };
+  mainChart.update(data);
+};
+
+const inhumanize = (input) => {
+  return input.toString().replace('GB', 'e9').replace('MB', 'e6').replace('MB', 'e3');
+};
+
+const calculateGraphs = (responses, graph) => {
+  graph.rtt = responses.map((response) => response.rtt);
+  graph.cpu = responses.map((response) => response.os.load['1m']);
+  graph.memFree = responses.map((response) => inhumanize(response.os.mem.free));
+  graph.memRss = responses.map((response) => inhumanize(response.process.mem.rss));
+  graph.memProc = responses.map((response) => inhumanize(response.process.mem.used));
+};
+
+const checkServer = (server, responses, graph) => {
+  const startTime = new Date();
+  return statusReader(server.endpoint)
+    .then((result) => {
+      result.rtt = new Date() - startTime;
+      responses.push(result);
+      while (responses.length > 100) {
+        responses.shift();
+      }
+      calculateGraphs(responses, graph);
+    });
+};
+
+const checkServers = (servers, responses, graphs, index) => {
+  const promises = [];
+  if (index === undefined) {
+    servers.forEach(function (server, index) {
+      if (server.monitor) {
+        promises.push(checkServer(servers[index], responses[index], graphs[index]));
+      }
+    });
+  } else {
+    promises.push(checkServer(servers[index], responses[index], graphs[index]));
+  }
+  Promise.all(promises)
+    .then(() => {
+      updateGraphs(servers, graphs, 'rtt');
+    });
+};
+
 var app = function () {
   return new Vue({
     el: '#app',
+    components: {
+    },
     data: {
+      editedServer: null,
       newServer: '',
-      servers: serverStorage.load(),
-      editedServer: null
+      graphs: [],
+      responses: [],
+      servers: serverStorage.load()
     },
     watch: {
       servers: {
@@ -8751,7 +8810,10 @@ var app = function () {
       },
 
       removeServer: function (server) {
-        this.servers.splice(this.servers.indexOf(server), 1);
+        const index = this.servers.indexOf(server);
+        this.graphs.splice(index, 1);
+        this.servers.splice(index, 1);
+        this.responses.splice(index, 1);
       },
 
       editServer: function (server) {
@@ -8780,23 +8842,18 @@ var app = function () {
         server.endpoint = this.beforeEditCache.endpoint;
       },
 
-      checkServers: function (servers, force) {
-        console.log('monitoring', this.monitoring);
-        if (this.monitoring || force) {
-          servers.forEach(function (server, index) {
-            statusReader(server.endpoint)
-              .then((result) => {
-                console.log({ endpoint: server.endpoint, result });
-              });
-          });
-        }
+      checkServers: function (index) {
+        checkServers(this.servers, this.responses, this.graphs, index);
       }
     },
 
     mounted: function () {
-      console.log('ready');
-      this.checkServers(this.servers);
-      setInterval(() => this.checkServers(this.servers), 30000);
+      this.servers.forEach((server) => {
+        this.graphs.push({rtt: [9]});
+        this.responses.push([]);
+      });
+      this.checkServers();
+      setInterval(() => checkServers(this.servers, this.responses, this.graphs), CHECK_FREQUENCY);
     }
   });
 };
@@ -8826,7 +8883,7 @@ module.exports = ServerStorage;
 },{}],5:[function(require,module,exports){
 function getStatusXHR (endpoint) {
   return new Promise((resolve, reject) => {
-    var xhr = new XMLHttpRequest();
+    var xhr = new window.XMLHttpRequest();
     xhr.open('GET', endpoint);
     xhr.responseType = 'json';
 

@@ -1,6 +1,6 @@
 function getStatusXHR (endpoint) {
   return new Promise((resolve, reject) => {
-    var xhr = new XMLHttpRequest();
+    var xhr = new window.XMLHttpRequest();
     xhr.open('GET', endpoint);
     xhr.responseType = 'json';
 
